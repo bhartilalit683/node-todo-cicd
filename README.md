@@ -17,5 +17,4 @@ or Run by docker compose
 
 test
 
-not runnig
-
+not running
