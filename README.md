@@ -18,4 +18,3 @@ or Run by docker compose
 test
 
 not running
-hello word
