@@ -3,7 +3,7 @@
 Run these commands:
 
 `sudo apt install nodejs`
-deploy
+
 
 `sudo apt install npm`
 
