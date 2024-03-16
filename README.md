@@ -9,6 +9,7 @@ Run these commands:
 
 
 `npm install`
+ok
 
 `node app.js`
 
