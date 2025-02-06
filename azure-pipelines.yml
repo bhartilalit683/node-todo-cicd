@@ -19,7 +19,7 @@ steps:
 
   - task: npm@1
     inputs:
-      command: 'run build'
+      command: 'npm run build'
     displayName: 'Build application'
 
   - task: PublishBuildArtifacts@1
