@@ -12,12 +12,37 @@ steps:
       versionSpec: '16.x'
     displayName: 'Install Node.js'
 
-  - script: |
-      npm install
-      npm run build
-    displayName: 'npm install and build'
+  - task: npm@1
+    inputs:
+      command: 'install'
+    displayName: 'Install dependencies'
+
+  - task: npm@1
+    inputs:
+      command: 'run build'
+    displayName: 'Build application'
 
   - task: PublishBuildArtifacts@1
     inputs:
       artifactName: 'drop'
       publishLocation: 'Container'
+
+  - task: CopyFilesOverSSH@0
+    inputs:
+      sshEndpoint: '$(sshServiceConnection)'
+      sourceFolder: '$(System.ArtifactsDirectory)/drop'
+      targetFolder: '/var/www/your-app'
+      cleanTargetFolder: true
+    displayName: 'Copy files to Nginx server'
+
+  - task: SSH@0
+    inputs:
+      sshEndpoint: '$(sshServiceConnection)'
+      runOptions: 'inline'
+      inline: |
+        # Update Nginx configuration
+        sudo cp /var/www/your-app/nginx/your-app.conf /etc/nginx/sites-available/your-app
+        sudo ln -s /etc/nginx/sites-available/your-app /etc/nginx/sites-enabled/
+        # Restart Nginx to apply changes
+        sudo systemctl restart nginx
+    displayName: 'Configure and restart Nginx'
