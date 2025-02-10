@@ -4,7 +4,7 @@ trigger:
       - main
 
 pool:
-  name: 'ec2agent'
+  name: 'windows'
 
 steps:
   - task: NodeTool@0
@@ -27,22 +27,4 @@ steps:
       artifactName: 'drop'
       publishLocation: 'Container'
 
-  - task: CopyFilesOverSSH@0
-    inputs:
-      sshEndpoint: '$(sshServiceConnection)'
-      sourceFolder: '$(System.ArtifactsDirectory)/drop'
-      targetFolder: '/var/www/your-app'
-      cleanTargetFolder: true
-    displayName: 'Copy files to Nginx server'
 
-  - task: SSH@0
-    inputs:
-      sshEndpoint: '$(sshServiceConnection)'
-      runOptions: 'inline'
-      inline: |
-        # Update Nginx configuration
-        sudo cp /var/www/your-app/nginx/your-app.conf /etc/nginx/sites-available/your-app
-        sudo ln -s /etc/nginx/sites-available/your-app /etc/nginx/sites-enabled/
-        # Restart Nginx to apply changes
-        sudo systemctl restart nginx
-    displayName: 'Configure and restart Nginx'
