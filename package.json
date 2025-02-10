@@ -20,4 +20,11 @@
     "nyc": "^14.1.1",
     "supertest": "^4.0.2"
   }
+  {
+  "scripts": {
+    "start": "node app.js",
+    "test": "mocha --recursive --exit",
+    "build": "echo 'No build step defined'"
+  }
+}
 }
