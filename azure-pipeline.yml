@@ -1,0 +1,80 @@
+trigger:
+- main  # Adjust this to your main branch or any other branch you prefer.
+
+pool:
+  name: 'agentpool'  # Use the default pool if you're using a self-hosted agent.
+
+variables:
+  NODE_VERSION: '16.x'  # Node.js version you want to install
+  APP_NAME: 'todo-app'  # Name of your Node.js app
+  DEPLOY_DIR: '/var/www/html/todo-app'  # Directory on your server where app will be deployed
+  NGINX_CONF_DIR: '/etc/nginx/sites-available'  # Nginx configuration directory
+  NGINX_SITE_ENABLED_DIR: '/etc/nginx/sites-enabled'  # Nginx sites-enabled directory for symbolic links
+
+jobs:
+- job: Build_and_Deploy
+  displayName: 'Build, Deploy and Configure Node.js Todo App'
+  steps:
+
+    # Step 1: Checkout the code from GitHub
+    - task: Checkout@2
+      displayName: 'Checkout code from GitHub'
+
+    # Step 2: Set up Node.js environment
+    - task: UseNode@2
+      inputs:
+        versionSpec: $(NODE_VERSION)
+      displayName: 'Set up Node.js'
+
+    # Step 3: Install dependencies
+    - script: |
+        sudo apt update
+        sudo apt install -y nodejs npm  # Install Node.js and npm
+        npm install  # Install dependencies from package.json
+      displayName: 'Install dependencies'
+
+    # Step 4: Build the app (if required by your app setup)
+    - script: |
+        # Add build step if your app has a build process (e.g., for production)
+        # npm run build (if applicable)
+      displayName: 'Build application'
+
+    # Step 5: Copy application files to the Nginx server (Self-hosted Agent)
+    - script: ubuntu@ip-172-31-94-131
+        # This assumes your self-hosted agent has SSH access to the Nginx server
+        scp -r * :$(DEPLOY_DIR)  # SCP command to copy files
+      displayName: 'Copy files to Nginx server'
+
+    # Step 6: Set up Nginx configuration to reverse proxy Node.js app
+    - script: |
+        # Create a new Nginx configuration file for the app
+        echo "
+        server {
+            listen 80;
+            server_name 3.95.234.125;
+
+            location / {
+                proxy_pass http://localhost:8000;  # Adjust port if needed (Node.js default port)
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade \$http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host \$host;
+                proxy_cache_bypass \$http_upgrade;
+            }
+        }
+        " | sudo tee $(NGINX_CONF_DIR)/$(todo-app).conf
+
+        # Create a symbolic link in sites-enabled to enable the site
+        sudo ln -s $(NGINX_CONF_DIR)/$(todo-app).conf $(NGINX_SITE_ENABLED_DIR)/$(todo-app)
+
+        # Check if Nginx configuration is valid
+        sudo nginx -t
+
+        # Restart Nginx to apply the new configuration
+        sudo systemctl restart nginx
+      displayName: 'Configure and Restart Nginx'
+
+    # Step 7: Start the Node.js app (Use a process manager like PM2 to ensure app stays u
+
+    # Optional: Add more tasks to monitor or test the deployment
+
