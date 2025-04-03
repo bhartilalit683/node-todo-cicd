@@ -22,7 +22,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
         # Uncomment the cache step if you want to cache npm dependencies for faster builds
         # cache: 'npm'
-    - run: cd /var/www/actions-runner/actions-runner/_work/node-todo-cicd/ && npm i  # Install backend dependencies
-    - run: cd /var/www/actions-runner/actions-runner/_work/node-todo-cicd/ && npm run build  # Run build command
+    - run: cd /var/www/actions-runner/actions-runner/_work/node-todo-cicd/node-todo-cicd && npm i  # Install backend dependencies
+    - run: cd /var/www/actions-runner/actions-runner/_work/node-todo-cicd/node-todo-cicd && npm run build  # Run build command
     - run: pm2 restart 0  # Restart the Node.js application using PM2 (ensure PM2 is set up to manage your app)
     - run: sudo service nginx restart  # Restart Nginx to serve the updated content
