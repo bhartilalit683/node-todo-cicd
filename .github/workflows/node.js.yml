@@ -1,0 +1,39 @@
+name: Node.js Deployment on Nginx with PM2
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: self-hosted # If using a self-hosted runner. Otherwise, use ubuntu-latest or similar.
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Install dependencies
+        run: |
+          cd /var/www/html/actions-runner/_word
+          git pull origin main
+          npm install
+
+      - name: Deploy with PM2
+        run: |
+          cd /var/www/html/actions-runner/_word
+          pm2 stop all || true  # Stop any running apps, but don't fail if no app is running
+          pm2 start /var/www/html/actions-runner/_word/app.js --name "todo-app"  # Start the Node app
+          pm2 save  # Save PM2 process list for auto-start on reboot
+
+      - name: Restart Nginx (if needed)
+        run: |
+          sudo systemctl restart nginx
