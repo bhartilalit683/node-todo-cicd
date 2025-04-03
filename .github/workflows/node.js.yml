@@ -23,15 +23,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd /var/www/html/actions-runner/_word
+          cd /var/www/html/actions-runner/actions-runner/_work
           git pull origin main
           npm install
 
       - name: Deploy with PM2
         run: |
-          cd /var/www/html/actions-runner/_word
+          cd /var/www/html/actions-runner/actions-runner/_work
           pm2 stop all || true  # Stop any running apps, but don't fail if no app is running
-          pm2 start /var/www/html/actions-runner/_word/app.js --name "todo-app"  # Start the Node app
+          pm2 start /var/www/html/actions-runner/actions-runner/_work/app.js --name "todo-app"  # Start the Node app
           pm2 save  # Save PM2 process list for auto-start on reboot
 
       - name: Restart Nginx (if needed)
