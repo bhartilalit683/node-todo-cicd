@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]  # Running tests or tasks on Node.js v18.x
+        node-version: [18.x]  # Running tasks on Node.js v18.x
 
     steps:
     - uses: actions/checkout@v3  # Check out the repository code
@@ -22,7 +22,11 @@ jobs:
         node-version: ${{ matrix.node-version }}
         # Uncomment the cache step if you want to cache npm dependencies for faster builds
         # cache: 'npm'
-    - run: cd /var/www/actions-runner/actions-runner/_work/node-todo-cicd/node-todo-cicd && npm i  # Install backend dependencies
-    - run: cd /var/www/actions-runner/actions-runner/_work/node-todo-cicd/node-todo-cicd && npm run build  # Run build command
-    - run: pm2 restart 0  # Restart the Node.js application using PM2 (ensure PM2 is set up to manage your app)
-    - run: sudo service nginx restart  # Restart Nginx to serve the updated content
+    - name: Install backend dependencies
+      run: cd node-todo-cicd && npm i  # Assuming 'node-todo-cicd' is a folder in the root of the repo
+    - name: Build the backend
+      run: cd node-todo-cicd && npm run build  # Run build command (Ensure the "build" script exists in package.json)
+    - name: Restart the Node.js application using PM2
+      run: pm2 restart 0  # Ensure PM2 is set up to manage your app
+    - name: Restart Nginx to serve the updated content
+      run: sudo service nginx restart  # Restart Nginx to serve the updated content
